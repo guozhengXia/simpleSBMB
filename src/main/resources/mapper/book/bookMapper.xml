@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.honor.simplesbmb.dao.book.BookDao">
+
+    <!--创建BaseResultMap，便于返回值使用-->
+    <resultMap id="BaseResultMap" type="bookModel">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="book_desc" jdbcType="VARCHAR" property="bookDesc"/>
+        <result column="price" jdbcType="VARCHAR" property="price"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+    </resultMap>
+
+    <!--所有字段，便于返回值查询返回值使用-->
+    <sql id="Base_Column_List">
+        id,title, book_desc, price,created_time,updated_time
+    </sql>
+
+
+    <!--所有字段的动态where，公查询list和查询数量使用。-->
+    <sql id="Base_Where">
+        <where>
+            <if test="title != null and title.length()>0">
+                title = #{title}
+            </if>
+            <if test="bookDesc != null and bookDesc.length()>0">
+                AND book_desc = #{bookDesc}
+            </if>
+            <if test="price != null and price.length()>0">
+                AND price = #{price}
+            </if>
+            <if test="createdTime != null">
+                AND created_time = #{createdTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--插入数据，并返回id-->
+    <insert id="insert" parameterType="bookModel" useGeneratedKeys="true" keyProperty="id">
+        insert into book (title,book_desc,price,created_time,updated_time)
+        values(#{title},#{bookDesc},#{price},NOW(),NOW())
+    </insert>
+
+    <!--根据id查寻一个，参数使用int-->
+    <select id="queryOne" parameterType="int" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM book WHERE ID = #{id}
+    </select>
+
+
+    <!--查询符合条件的所有数据，返回值是List，接收任意字段组合的参数。-->
+    <select id="queryList" parameterType="bookModel" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM book
+        <include refid="Base_Where"/>
+        ORDER BY created_time DESC
+    </select>
+
+    <!--查询符合条件的所有数据的数量，返回值是int，接收任意字段组合的参数。-->
+    <select id="queryCount" parameterType="bookModel" resultType="int">
+        SELECT COUNT(*) FROM book
+        <include refid="Base_Where"/>
+    </select>
+
+    <!--更新数据，只能根据id更新，若是其他条件则先使用queryList查询，然后再更新-->
+    <update id="update" parameterType="bookModel">
+        UPDATE book
+        <set>
+            <if test="title!=null and title.length()>0">
+                title= #{title},
+            </if>
+            <if test="bookDesc != null and bookDesc.length()>0">
+                book_desc = #{bookDesc},
+            </if>
+            <if test="price != null and price.length()>0">
+                price = #{price},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!--删除数据，只能根据id删除，若是其他条件则先使用queryList查询，然后再删除-->
+    <delete id="delete" parameterType="int">
+        DELETE FROM book WHERE ID = #{id}
+    </delete>
+
+</mapper>

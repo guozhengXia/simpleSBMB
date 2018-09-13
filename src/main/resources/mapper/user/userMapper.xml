@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.honor.simplesbmb.dao.user.UserDao">
+
+    <!--创建BaseResultMap，便于返回值使用-->
+    <resultMap id="BaseResultMap" type="userModel">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="phone_num" jdbcType="VARCHAR" property="phoneNum"/>
+        <result column="age" jdbcType="INTEGER" property="age"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+    </resultMap>
+
+    <!--所有字段，便于返回值查询返回值使用-->
+    <sql id="Base_Column_List">
+        id,name, password,phone_num, age,created_time,updated_time
+    </sql>
+
+
+    <!--所有字段的动态where，公查询list和查询数量使用。-->
+    <sql id="Base_Where">
+        <where>
+            <if test="name != null and name.length()>0">
+                name = #{name}
+            </if>
+            <if test="password != null and password.length()>0">
+                name = #{password}
+            </if>
+            <if test="phoneNum != null and phoneNum.length()>0">
+                AND phone_num = #{phoneNum}
+            </if>
+            <if test="age > 0">
+                AND age = #{age}
+            </if>
+            <if test="createdTime != null">
+                AND created_time = #{createdTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--插入数据，并返回id-->
+    <insert id="insert" parameterType="userModel" useGeneratedKeys="true" keyProperty="id">
+        insert into user (name,password,phone_num,age,created_time,updated_time)
+        values(#{name,jdbcType=VARCHAR},#{password,jdbcType=VARCHAR},#{phoneNum,jdbcType=VARCHAR},#{age,jdbcType=INTEGER},NOW(),NOW())
+    </insert>
+
+    <!--根据id查寻一个，参数使用int-->
+    <select id="queryOne" parameterType="int" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user WHERE ID = #{id}
+    </select>
+
+
+    <!--查询符合条件的所有数据，返回值是List，接收任意字段组合的参数。-->
+    <select id="queryList" parameterType="userModel" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        <include refid="Base_Where"/>
+        ORDER BY created_time DESC
+    </select>
+
+    <!--查询符合条件的所有数据的数量，返回值是int，接收任意字段组合的参数。-->
+    <select id="queryCount" parameterType="userModel" resultType="int">
+        SELECT COUNT(*) FROM user
+        <include refid="Base_Where"/>
+    </select>
+
+    <!--更新数据，只能根据id更新，若是其他条件则先使用queryList查询，然后再更新-->
+    <update id="update" parameterType="userModel">
+        UPDATE user
+        <set>
+            <if test="name!=null and name.length()>0">
+                name= #{name},
+            </if>
+            <if test="password!=null and password.length()>0">
+                password= #{password},
+            </if>
+            <if test="phoneNum != null and phoneNum.length()>0">
+                phone_num = #{phoneNum},
+            </if>
+            <if test="age > 0">
+                age = #{age},
+            </if>
+            updated_time = NOW()
+        </set>
+        WHERE ID = #{id}
+    </update>
+
+    <!--删除数据，只能根据id删除，若是其他条件则先使用queryList查询，然后再删除-->
+    <delete id="delete" parameterType="int">
+        DELETE FROM user WHERE ID = #{id}
+    </delete>
+
+</mapper>
