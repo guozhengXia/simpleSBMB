@@ -2,9 +2,7 @@ package com.honor.simplesbmb.controller.book;
 
 import com.alibaba.fastjson.JSONObject;
 import com.honor.simplesbmb.model.book.BookModel;
-import com.honor.simplesbmb.model.user.UserModel;
 import com.honor.simplesbmb.service.book.BookService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +26,7 @@ public class BookController {
      * @return
      */
     @RequestMapping(value = "get.do", method = RequestMethod.GET)
-    public Object list(@RequestParam("id") int id) {
+    public Object get(@RequestParam("id") int id) {
         JSONObject jsonObject = new JSONObject();
         BookModel bookModel = bookService.queryOne(id);
 
